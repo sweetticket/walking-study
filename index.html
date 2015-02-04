@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>jspsych-single-stim example</title>
+        <!-- Load jQuery -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <!-- Load the jspsych library and plugins -->
+        <script src="scripts/jspsych.js"></script>
+        <script src="scripts/plugins/jspsych-text.js"></script>
+        <script src="scripts/plugins/jspsych-flashing-stim.js"></script>
+        <script src="scripts/plugins/constants.js" type="text/javascript"></script>
+        <script src="scripts/plugins/classes.js" type="text/javascript"></script>
+        <script src="scripts/plugins/helpers.js" type="text/javascript"></script>
+        <script src="scripts/plugins/task.js" type="text/javascript"> </script>
+       <!-- style -->
+        <link href="css/jspsych.css" rel="stylesheet" type="text/css"></link>
+        <link href="css/style.css" rel="stylesheet" type="text/css"></link>
+    </head>
+
+    <body>
+        <div id="jspsych_target"></div>
+    </body>
+
+    <script type="text/javascript">
+        
+        // Experiment Instructions
+        var instructions1 = '<div id="instructions"><p>Welcome to this study. This task measures attention and rapid responding.</p>'
+            +'<p>This first task is called the HIT Task.  You should hit the space bar as soon as you can when you see a certain word.</p>'
+            +'<p>For your HIT Task, we would like you to stay vigilant and watch for the following word:</p>'
+            +'<h2><center><strong>Looking</strong></center></h2>'
+            +'<p>Press the spacebar to continue.</p></div>';
+        
+        var instructions2 = '<div id="instructions"><p>In this task, a lot of distractor items randomly selected from our data base will appear on the screen.</p>'
+            + '<p>There will sometimes be only 1 item and sometimes a pair of items will appear. These items may not appear at fixed intervals, but at random times.</p>'
+            +'<p>Press the spacebar to continue.</p></div>'
+        
+        var instructions3 = '<div id="instructions"><p>Whenever you see the word <b>"looking"</b> you should hit the space bar.  You do not need to do anything else.</p>'
+            + '<p>Please try to hit the space bar as soon as you see this target word.</p>'
+            +'<p>Press the spacebar to continue.</p></div>'
+            
+        var instructions4 = '<div id="instructions">'
+            +'<p>This is a <b>practice</b> round.</p>'
+            +'<p>Press the spacebar to begin.</p></div>'
+            
+        var instructions5 = '<div id="instructions">'
+            +'<p>This is the <b>real</b> task.</p>'
+            +'<p>Press the spacebar to begin.</p></div>'
+            
+        var instructions6 = '<div id="instructions">'
+            +'<p>Do the same task again.</p>'
+            +'<p>Press the spacebar to begin.</p></div>'
+        
+        
+        
+        var url = window.location.href;
+        var random_id = url.split("?=")[1] == '' ? Math.floor(Math.random() * 10000000000) : url.split("?=")[1];
+        var condition = url.split("?=")[2] == '' ? 1 : url.split("?=")[2];
+        
+        // Generating Random Order for Stimuli
+        var practice_list = buildStimList(condition, 0);
+        var block_1_list = buildStimList(condition, 1);
+        var block_2_list = buildStimList (condition, 2);
+
+        // Define experiment blocks
+        var instruction_block_1 = {
+                type: "text",
+                text: [instructions1],
+                timing_post_trial: 0,
+                cont_key: ['spacebar']
+        };
+
+        var instruction_block_2 = {
+                type: "text",
+                text: [instructions2],
+                timing_post_trial: 2,
+                cont_key: ['spacebar']
+        };
+            
+        var instruction_block_3 = {
+                type: "text",
+                text: [instructions3],
+                timing_post_trial: 0,
+                cont_key: ['spacebar']
+        };
+            
+        var instruction_block_4 = {
+                type: "text",
+                text: [instructions4],
+                timing_post_trial: 1000,
+                cont_key: ['spacebar']
+        };
+        
+        var instruction_block_5 = {
+                type: "text",
+                text: [instructions5],
+                timing_post_trial: 1000,
+                cont_key: ['spacebar']
+        };
+        
+        var instruction_block_6 = {
+                type: "text",
+                text: [instructions6],
+                timing_post_trial: 1000,
+                cont_key: ['spacebar']
+        };
+        
+        var practice_block = {
+            type: "single-stim",
+            stimuli: practice_list,
+            block_type: 0,
+            choices: ['spacebar']
+        };
+        
+        var block_1 = {
+            type: "single-stim",
+            stimuli: block_2_list,
+            block_type: 1,
+            choices: ['spacebar']
+        };
+        
+        var block_2 = {
+            type: "single-stim",
+            stimuli: block_2_list,
+            block_type: 2,
+            choices: ['spacebar']
+        };
+
+        
+        jsPsych.init({
+                display_element: $('#jspsych_target'),
+                experiment_structure: [instruction_block_1, instruction_block_2, instruction_block_3, instruction_block_4, practice_block],
+                //experiment_structure: [instruction_block_1, instruction_block_2, instruction_block_3, instruction_block_4, practice_block, instruction_block_5, block_1, instruction_block_6, block_2],
+                 on_finish: function(data){
+                    $.post("save_data.php", { 'id': random_id, 'filedata': data, 'cond': condition });
+                    
+                    setTimeout(function(){
+                        window.location.replace("https://cornell.qualtrics.com/SE/?SID=SV_0MSuJduTbHfQvzv&idnum="+random_id+"&cond="+condition);
+                    }, 2000);
+                }
+            
+            });
+        
+    </script>
+</html>
+        
